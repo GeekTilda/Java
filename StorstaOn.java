@@ -4,33 +4,61 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Scanner;
 
+// Finds the biggest island! 
+
+// @ = island
+// ~ = sea
+
+// Input: Two numbers representing the width and height of the map
+// Output: The area of the largest island (does not count diagonals)
+
+// Examples:
+
+// Input 1:     10 10
+//              ~~~~~~~~~~
+//              ~@~~~~~~~~
+//              ~~~~~~~~~~
+//              ~~~@@~~~~~
+//              ~~~@~~~~~~
+//              ~~~~~~~~~~
+//              ~~~~~~~~~~
+//              ~@@@@@@@@@
+//              ~~~~~~~~~~
+//              ~~~~~~~~~~
+// Output 1:    9
+
+// Input 2:     3 3
+//              ~~~
+//              ~@~
+//              ~~~
+// Output 2:    1
+
 public class StorstaOn {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         String[] rowXcol = scanner.nextLine().split(" ");
 
+        // Initiating row and column sizes 
         int totalRows = Integer.parseInt(rowXcol[0]);
         int totalCols = Integer.parseInt(rowXcol[1]);
 
-        // Create a 2D grid to store the map
-        char[][] map = new char[totalRows][totalCols];
+        char[][] map = new char[totalRows][totalCols];  // Creating a 2D grid to store the map
 
-        // Read the entire map into memory
-        for (int r = 0; r < totalRows; r++) {
+        for (int r = 0; r < totalRows; r++) {   // Read through every row
             map[r] = scanner.nextLine().toCharArray();
         }
 
         scanner.close();
 
-        // Variable to keep track of the largest island
-        int maxSize = 0;
+        int maxSize = 0;    // Variable to keep track of the largest island
 
-        // Traverse through each cell of the map
         for (int r = 0; r < totalRows; r++) {
             for (int c = 0; c < totalCols; c++) {
-                if (map[r][c] == '@') {  // When we find land, start a BFS
-                    int islandSize = BFS(map, r, c, totalRows, totalCols);
-                    maxSize = Math.max(maxSize, islandSize);  // Update the largest island size
+                if (map[r][c] == '@') {
+                    int islandSize = BFS(map, r, c, totalRows, totalCols);  // When we find land, start a BFS (breadth-first search)
+                    if (islandSize > maxSize) { // Update largest island
+                        maxSize = islandSize;
+                    }
                 }
             }
         }
@@ -38,41 +66,31 @@ public class StorstaOn {
         System.out.println(maxSize);
     }
 
-    // BFS method to explore the island
-    public static int BFS(char[][] map, int startRow, int startCol, int totalRows, int totalCols) {
-        // Directions to explore (up, down, left, right)
-        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+    public static int BFS(char[][] map, int startRow, int startCol, int totalRows, int totalCols) { // BFS (breadth-first search) method to explore the island (Visual: https://en.wikipedia.org/wiki/Breadth-first_search#/media/File:BFS-Algorithm_Search_Way.gif )
+        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};    // "Matrix" of directions to explore (up, down, left, right)
 
-        // Queue for BFS
-        Queue<int[]> queue = new LinkedList<>();
-        queue.add(new int[]{startRow, startCol});
+        Queue<int[]> queue = new LinkedList<>();    // Queue for BFS
+        queue.add(new int[]{startRow, startCol});   // Adding starting-values
 
-        // Start the size of the island as 1 (since we found an '@' at startRow, startCol)
         int size = 1;
 
-        // Mark the starting position as visited
-        map[startRow][startCol] = '.';
+        map[startRow][startCol] = '.';  // Mark the starting position as visited
 
-        // BFS loop
-        while (!queue.isEmpty()) {
-            int[] point = queue.poll();
+        while (!queue.isEmpty()) {  // BFS loop
+            int[] point = queue.poll(); // Dequeues the first element in the queue (which will be both a row and a column)
             int row = point[0];
             int col = point[1];
 
-            // Explore all 4 possible directions (up, down, left, right)
-            for (int[] direction : directions) {
+            for (int[] direction : directions) {    // Explore all 4 possible directions (up, down, left, right)
                 int newRow = row + direction[0];
                 int newCol = col + direction[1];
 
-                // Check if the new position is within bounds
-                if (newRow >= 0 && newRow < totalRows && newCol >= 0 && newCol < totalCols) {
-                    // If the new position is land ('@'), continue the BFS
-                    if (map[newRow][newCol] == '@') {
+                if (newRow >= 0 && newRow < totalRows && newCol >= 0 && newCol < totalCols) {   // Check if the new position is within bounds
+                    if (map[newRow][newCol] == '@') {   // If the new position is land, add the coordinates to our queue
                         queue.add(new int[]{newRow, newCol});
                         size++;  // Increase the island size
 
-                        // Mark the cell as visited
-                        map[newRow][newCol] = '.';
+                        map[newRow][newCol] = '.';  // Mark the cell as visited (so we don't count the same piece of land multiple times)
                     }
                 }
             }
